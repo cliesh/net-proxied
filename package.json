@@ -1,0 +1,28 @@
+{
+  "name": "net-proxied",
+  "version": "0.0.1",
+  "description": "Set system proxy for operating system, supporting MAC and Windows.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cliesh/net-proxied.git"
+  },
+  "keywords": [
+    "proxy",
+    "proxied",
+    "system"
+  ],
+  "author": "anonysoul",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cliesh/net-proxied/issues"
+  },
+  "homepage": "https://github.com/cliesh/net-proxied#readme",
+  "devDependencies": {
+    "@types/node": "^18.7.19",
+    "typescript": "^4.8.3"
+  }
+}
