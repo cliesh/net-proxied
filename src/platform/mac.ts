@@ -6,7 +6,7 @@ export type MacProxyType = "web" | "secureweb" | "ftp" | "socksfirewall" | "goph
 export class MacProxyConfig implements BaseProxyConfig {
   hostname: string;
   port: number;
-  override?: string[];
+  passDomains?: string[];
   authentification?: Authentication;
 
   /**
@@ -40,6 +40,7 @@ export interface NetworkServiceProxyStatus {
   enabled: boolean;
   server?: string;
   port?: number;
+  passDomains: string[];
 }
 
 export interface DisableProxyRequest {
@@ -73,6 +74,8 @@ export class MacProxied {
     if (allNetworkService.length === 0) return null;
     const result = new Array<NetworkServiceProxyStatus>();
     allNetworkService.map((networkService) => {
+      const passdomains = Executor.executeSync(`networksetup -getproxybypassdomains ${networkService.name}`);
+      const passDomains = passdomains.split("\n").filter((content) => content.trim() !== "");
       this.allProxyTypes.map((type) => {
         const context = Executor.executeSync(`networksetup -get${type}proxy ${networkService.name}`);
         const lines = context.split("\n");
@@ -83,13 +86,15 @@ export class MacProxied {
             type: type,
             enabled: true,
             server: lines[1].split(":")[1].trim(),
-            port: Number(lines[2].split(":")[1].trim())
+            port: Number(lines[2].split(":")[1].trim()),
+            passDomains: passDomains
           });
         } else {
           result.push({
             name: networkService.name,
             type: type,
-            enabled: enabled
+            enabled: enabled,
+            passDomains: passDomains
           });
         }
       });
@@ -103,15 +108,13 @@ export class MacProxied {
       const proxyCommand = this.generateEnableProxyCommand(networkServiceName, config);
       Executor.executeSync(proxyCommand);
     });
-    // set override
-    if (config.override === undefined) return;
     config.networkServiceNames.map((nenetworkServiceName) => {
-      const overrideCommand = this.generateOverrideCommand(nenetworkServiceName, config.override!);
+      const overrideCommand = this.generatePassDomainsCommand(nenetworkServiceName, config.passDomains);
       Executor.executeSync(overrideCommand);
     });
   }
 
-  disable(disableProxyRequest: DisableProxyRequest | undefined): void {
+  disable(disableProxyRequest?: DisableProxyRequest): void {
     if (disableProxyRequest !== undefined && disableProxyRequest.networkServiceNames.length === 0) return;
     if (disableProxyRequest === undefined) {
       // disable all
@@ -157,7 +160,8 @@ export class MacProxied {
     return proxyCommand;
   }
 
-  private generateOverrideCommand(networkServiceName: string, override: string[]): string {
-    return `networksetup -setproxybypassdomains ${networkServiceName} ${override.join(" ")}`;
+  private generatePassDomainsCommand(networkServiceName: string, passDomains?: string[]): string {
+    const passDomainsFixed = passDomains === undefined || passDomains.length === 0 ? "''" : passDomains.join(" ");
+    return `networksetup -setproxybypassdomains ${networkServiceName} ${passDomainsFixed}`;
   }
 }
