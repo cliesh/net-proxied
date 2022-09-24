@@ -36,6 +36,7 @@ export interface NetworkService {
 
 export interface NetworkServiceProxyStatus {
   name: string;
+  type: MacProxyType;
   enabled: boolean;
   server?: string;
   port?: number;
@@ -49,6 +50,7 @@ export interface DisableProxyRequest {
 export class MacProxied {
   private defaultNetworkServiceNames = ["Wi-Fi", "Ethernet"];
   private defaultTypes = ["web", "secureweb"] as MacProxyType[];
+  private allProxyTypes: MacProxyType[] = ["web", "secureweb", "ftp", "socksfirewall", "gopher", "streaming"];
 
   listNetworkServices(): NetworkService[] {
     const context = Executor.executeSync("networksetup -listallnetworkservices");
@@ -69,24 +71,30 @@ export class MacProxied {
   async status(): Promise<NetworkServiceProxyStatus[] | null> {
     const allNetworkService = this.listNetworkServices();
     if (allNetworkService.length === 0) return null;
-    return allNetworkService.map((networkService) => {
-      const context = Executor.executeSync(`networksetup -get${this.defaultTypes[0]}proxy ${networkService.name}`);
-      const lines = context.split("\n");
-      const enabled = lines[0].startsWith("Enabled: Yes");
-      if (enabled) {
-        return {
-          name: networkService.name,
-          enabled: true,
-          server: lines[1].split(":")[1].trim(),
-          port: Number(lines[2].split(":")[1].trim())
-        };
-      } else {
-        return {
-          name: networkService.name,
-          enabled: enabled
-        };
-      }
+    const result = new Array<NetworkServiceProxyStatus>();
+    allNetworkService.map((networkService) => {
+      this.allProxyTypes.map((type) => {
+        const context = Executor.executeSync(`networksetup -get${type}proxy ${networkService.name}`);
+        const lines = context.split("\n");
+        const enabled = lines[0].startsWith("Enabled: Yes");
+        if (enabled) {
+          result.push({
+            name: networkService.name,
+            type: type,
+            enabled: true,
+            server: lines[1].split(":")[1].trim(),
+            port: Number(lines[2].split(":")[1].trim())
+          });
+        } else {
+          result.push({
+            name: networkService.name,
+            type: type,
+            enabled: enabled
+          });
+        }
+      });
     });
+    return result;
   }
 
   enable(config: MacProxyConfig): void {
@@ -109,7 +117,7 @@ export class MacProxied {
       // disable all
       const allNetworkService = this.listNetworkServices();
       allNetworkService.map((networkService) => {
-        const proxyCommand = this.generateDisableProxyCommand(networkService.name, ["web", "secureweb", "ftp", "socksfirewall"]);
+        const proxyCommand = this.generateDisableProxyCommand(networkService.name, this.allProxyTypes);
         Executor.executeSync(proxyCommand);
       });
     } else {
