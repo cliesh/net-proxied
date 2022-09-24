@@ -1,5 +1,6 @@
 node_modules
-dist
+net-proxied
+.wireit
 package-lock.json
 
 .vscode
