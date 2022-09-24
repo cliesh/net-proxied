@@ -69,7 +69,7 @@ export class MacProxied {
       });
   }
 
-  async status(): Promise<NetworkServiceProxyStatus[] | null> {
+  status(): NetworkServiceProxyStatus[] | null {
     const allNetworkService = this.listNetworkServices();
     if (allNetworkService.length === 0) return null;
     const result = new Array<NetworkServiceProxyStatus>();

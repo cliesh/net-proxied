@@ -15,6 +15,11 @@ export class WindowsProxied {
   private enableCommand = `reg add ${this.REG} /v ProxyEnable /t REG_DWORD /d 1 /f`;
   private disableCommand = `reg add ${this.REG} /v ProxyEnable /t REG_DWORD /d 0 /f`;
 
+  /**
+   * proxy status
+   *
+   * @returns null if proxy is disabled
+   */
   status(): WindowsProxyConfig | null {
     const proxyEnable = Executor.executeSync(`reg query ${this.REG} /v ProxyEnable`);
     const proxyServer = Executor.executeSync(`reg query ${this.REG} /v ProxyServer`);
@@ -44,7 +49,7 @@ export class WindowsProxied {
     Executor.executeSync(this.enableCommand);
   }
 
-  disable(types: WindowsProxyType[] | undefined): void {
+  disable(types?: WindowsProxyType[]): void {
     if (types) {
       const proxyConfig = this.status();
       if (!proxyConfig) return;
