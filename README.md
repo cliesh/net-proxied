@@ -1,0 +1,67 @@
+# net-proxied: Set up proxy for operating systems and applications
+
+[![Published on npm](https://img.shields.io/npm/v/net-proxied.svg?logo=npm)](https://www.npmjs.com/package/net-proxied)
+[![Build Status](https://github.com/cliesh/net-proxied/actions/workflows/test.yml/badge.svg)](https://github.com/cliesh/net-proxied/actions/workflows/test.yml)
+
+## Supported
+
+- Windows operating system
+- Mac operating system
+
+## Install
+
+```shell
+npm i net-proxied
+```
+
+## Example
+
+Set up proxy on Windows:
+
+```typescript
+import { WindowsProxied, WindowsProxyConfig } from "net-proxied";
+
+const proxied = new WindowsProxied();
+
+const config: WindowsProxyConfig = {
+  hostname: "10.20.30.40",
+  port: 5060,
+  types: ["http", "https", "ftp"],
+  override: ["localhost", "192.168.*", "10.*"]
+};
+
+proxied.enable(config);
+
+// You can also disable it
+proxied.disable();
+```
+
+Set up proxy on Mac:
+
+```typescript
+import { MacProxied, MacProxyConfig } from "net-proxied";
+
+const proxied = new MacProxied();
+
+const config: WindowsProxyConfig = {
+  hostname: "10.20.30.40",
+  port: 5060,
+  types: ["http", "https", "ftp"],
+  override: ["localhost", "192.168.*", "10.*"]
+};
+
+proxied.enable(config);
+
+// You can also disable it
+proxied.disable();
+```
+
+## Contributors
+
+| Name          | Website                         |
+| ------------- | ------------------------------- |
+| **anonysoul** | <https://github.com/anonysoul/> |
+
+## License
+
+[MIT](LICENSE) © [anonysoul](https://github.com/anonysoul/)
