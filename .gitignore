@@ -1,6 +1,5 @@
 node_modules
 net-proxied
 .wireit
-package-lock.json
 
 .vscode
