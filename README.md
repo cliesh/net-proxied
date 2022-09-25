@@ -39,11 +39,12 @@ Set up proxy on Mac:
 ```typescript
 import { MacProxied, MacProxyConfig } from "net-proxied";
 
-const config: WindowsProxyConfig = {
+const config: MacProxyConfig = {
   hostname: "10.20.30.40",
   port: 5060,
-  types: ["http", "https", "ftp"],
-  override: ["localhost", "192.168.*", "10.*"]
+  networkServiceNames: ["Ethernet"],
+  types: ["web", "secureweb", "ftp"],
+  passDomains: ["localhost", "192.168.*", "10.*"]
 };
 
 MacProxied.enable(config);
