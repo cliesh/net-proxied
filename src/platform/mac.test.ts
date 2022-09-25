@@ -1,6 +1,5 @@
 import { DisableProxyRequest, MacProxied, MacProxyConfig } from "./mac";
 
-const proxied = new MacProxied();
 const needTest = process.platform === "darwin";
 
 test("enable", () => {
@@ -12,8 +11,8 @@ test("enable", () => {
     types: ["web", "secureweb", "ftp", "socksfirewall", "gopher", "streaming"],
     networkServiceNames: ["Ethernet"]
   };
-  proxied.enable(config);
-  const status = proxied.status();
+  MacProxied.enable(config);
+  const status = MacProxied.status();
   if (status !== null) {
     status
       .filter((s) => s.name === "Ethernet")
@@ -32,8 +31,8 @@ test("disable", () => {
     types: ["web", "secureweb", "ftp", "socksfirewall", "gopher", "streaming"],
     networkServiceNames: ["Ethernet"]
   };
-  proxied.disable(config);
-  const status = proxied.status();
+  MacProxied.disable(config);
+  const status = MacProxied.status();
   if (status !== null) {
     status
       .filter((s) => s.name === "Ethernet")
@@ -48,11 +47,11 @@ test("enableAll", () => {
   const config: MacProxyConfig = {
     hostname: "10.20.30.40",
     port: 5060,
-    networkServiceNames: proxied.listNetworkServices().map((s) => s.name),
+    networkServiceNames: MacProxied.listNetworkServices().map((s) => s.name),
     types: ["web", "secureweb", "ftp", "socksfirewall", "gopher", "streaming"]
   };
-  proxied.enable(config);
-  const status = proxied.status();
+  MacProxied.enable(config);
+  const status = MacProxied.status();
   if (status !== null) {
     status.forEach((item) => {
       expect(item.enabled).toBe(true);
@@ -67,10 +66,10 @@ test("disableAll", () => {
   if (!needTest) return;
   const config: DisableProxyRequest = {
     types: ["web", "secureweb", "ftp", "socksfirewall", "gopher", "streaming"],
-    networkServiceNames: proxied.listNetworkServices().map((s) => s.name)
+    networkServiceNames: MacProxied.listNetworkServices().map((s) => s.name)
   };
-  proxied.disable(config);
-  const status = proxied.status();
+  MacProxied.disable(config);
+  const status = MacProxied.status();
   if (status !== null) {
     status.forEach((item) => {
       expect(item.enabled).toBe(false);

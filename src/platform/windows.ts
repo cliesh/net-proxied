@@ -11,16 +11,16 @@ export class WindowsProxyConfig implements BaseProxyConfig {
 }
 
 export class WindowsProxied {
-  private REG = `"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"`;
-  private enableCommand = `reg add ${this.REG} /v ProxyEnable /t REG_DWORD /d 1 /f`;
-  private disableCommand = `reg add ${this.REG} /v ProxyEnable /t REG_DWORD /d 0 /f`;
+  private static REG = `"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"`;
+  private static enableCommand = `reg add ${this.REG} /v ProxyEnable /t REG_DWORD /d 1 /f`;
+  private static disableCommand = `reg add ${this.REG} /v ProxyEnable /t REG_DWORD /d 0 /f`;
 
   /**
    * proxy status
    *
    * @returns null if proxy is disabled
    */
-  status(): WindowsProxyConfig | null {
+  static status(): WindowsProxyConfig | null {
     const proxyEnable = Executor.executeSync(`reg query ${this.REG} /v ProxyEnable`);
     const proxyServer = Executor.executeSync(`reg query ${this.REG} /v ProxyServer`);
     const proxyOverride = Executor.executeSync(`reg query ${this.REG} /v ProxyOverride`);
@@ -40,7 +40,7 @@ export class WindowsProxied {
     };
   }
 
-  enable(config: WindowsProxyConfig): void {
+  static enable(config: WindowsProxyConfig): void {
     this.verifyConfig(config);
     const proxyCommand = this.generateProxyCommand(config);
     Executor.executeSync(proxyCommand);
@@ -49,7 +49,7 @@ export class WindowsProxied {
     Executor.executeSync(this.enableCommand);
   }
 
-  disable(types?: WindowsProxyType[]): void {
+  static disable(types?: WindowsProxyType[]): void {
     if (types) {
       const proxyConfig = this.status();
       if (!proxyConfig) return;
@@ -64,19 +64,19 @@ export class WindowsProxied {
     }
   }
 
-  private verifyConfig(config: WindowsProxyConfig): void {
+  private static verifyConfig(config: WindowsProxyConfig): void {
     if (!config.hostname) throw new Error("hostname is required");
     if (!config.port) throw new Error("port is required");
     if (!config.types) throw new Error("types is required");
     if (config.types.length === 0) throw new Error("types is required");
   }
 
-  private generateProxyCommand(config: WindowsProxyConfig): string {
+  private static generateProxyCommand(config: WindowsProxyConfig): string {
     const proxy = config.types.map((type) => `${type}=${config.hostname}:${config.port}`).join(";");
     return `reg add ${this.REG} /v ProxyServer /t REG_SZ /d "${proxy}" /f`;
   }
 
-  private generateOverrideCommand(config: WindowsProxyConfig): string {
+  private static generateOverrideCommand(config: WindowsProxyConfig): string {
     const override = config.override ? config.override.join(";") : "";
     return `reg add ${this.REG} /v ProxyOverride /t REG_SZ /d "${override}" /f`;
   }

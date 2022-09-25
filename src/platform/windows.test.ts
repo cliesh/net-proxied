@@ -1,6 +1,5 @@
 import { WindowsProxied, WindowsProxyConfig } from "./windows";
 
-const proxied = new WindowsProxied();
 const needTest = process.platform === "win32";
 
 test("enable", () => {
@@ -11,8 +10,8 @@ test("enable", () => {
     types: ["http", "https", "ftp"],
     override: ["localhost", "192.168.*", "10.*"]
   };
-  proxied.enable(config);
-  const status = proxied.status();
+  WindowsProxied.enable(config);
+  const status = WindowsProxied.status();
   expect(status).not.toBeNull();
   expect(status!.hostname).toBe(config.hostname);
   expect(status!.port).toBe(config.port);
@@ -22,8 +21,8 @@ test("enable", () => {
 
 test("disable", () => {
   if (!needTest) return;
-  proxied.disable();
-  const status = proxied.status();
+  WindowsProxied.disable();
+  const status = WindowsProxied.status();
   expect(status).toBeNull();
 });
 
@@ -35,9 +34,9 @@ test("enable-specify", () => {
     types: ["http", "https", "ftp"],
     override: ["localhost", "192.168.*", "10.*"]
   };
-  proxied.enable(enableConfig);
-  proxied.disable(["http", "ftp"]);
-  const status = proxied.status();
+  WindowsProxied.enable(enableConfig);
+  WindowsProxied.disable(["http", "ftp"]);
+  const status = WindowsProxied.status();
   expect(status).not.toBeNull();
   expect(status!.hostname).toBe(enableConfig.hostname);
   expect(status!.port).toBe(enableConfig.port);

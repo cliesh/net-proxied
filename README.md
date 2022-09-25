@@ -1,4 +1,4 @@
-# net-proxied: Set up proxy for operating systems and applications
+# net-proxied: Set up proxy for operating systems
 
 [![Published on npm](https://img.shields.io/npm/v/net-proxied.svg?logo=npm)](https://www.npmjs.com/package/net-proxied)
 [![Build Status](https://github.com/cliesh/net-proxied/actions/workflows/test.yml/badge.svg)](https://github.com/cliesh/net-proxied/actions/workflows/test.yml)
@@ -21,8 +21,6 @@ Set up proxy on Windows:
 ```typescript
 import { WindowsProxied, WindowsProxyConfig } from "net-proxied";
 
-const proxied = new WindowsProxied();
-
 const config: WindowsProxyConfig = {
   hostname: "10.20.30.40",
   port: 5060,
@@ -30,10 +28,10 @@ const config: WindowsProxyConfig = {
   override: ["localhost", "192.168.*", "10.*"]
 };
 
-proxied.enable(config);
+WindowsProxied.enable(config);
 
 // You can also disable it
-proxied.disable();
+// WindowsProxied.disable();
 ```
 
 Set up proxy on Mac:
@@ -41,8 +39,6 @@ Set up proxy on Mac:
 ```typescript
 import { MacProxied, MacProxyConfig } from "net-proxied";
 
-const proxied = new MacProxied();
-
 const config: WindowsProxyConfig = {
   hostname: "10.20.30.40",
   port: 5060,
@@ -50,10 +46,10 @@ const config: WindowsProxyConfig = {
   override: ["localhost", "192.168.*", "10.*"]
 };
 
-proxied.enable(config);
+MacProxied.enable(config);
 
 // You can also disable it
-proxied.disable();
+// MacProxied.disable();
 ```
 
 ## Contributors

@@ -49,11 +49,11 @@ export interface DisableProxyRequest {
 }
 
 export class MacProxied {
-  private defaultNetworkServiceNames = ["Wi-Fi", "Ethernet"];
-  private defaultTypes = ["web", "secureweb"] as MacProxyType[];
-  private allProxyTypes: MacProxyType[] = ["web", "secureweb", "ftp", "socksfirewall", "gopher", "streaming"];
+  private static defaultNetworkServiceNames = ["Wi-Fi", "Ethernet"];
+  private static defaultTypes = ["web", "secureweb"] as MacProxyType[];
+  private static allProxyTypes: MacProxyType[] = ["web", "secureweb", "ftp", "socksfirewall", "gopher", "streaming"];
 
-  listNetworkServices(): NetworkService[] {
+  static listNetworkServices(): NetworkService[] {
     const context = Executor.executeSync("networksetup -listallnetworkservices");
     return context
       .split("\n")
@@ -69,7 +69,7 @@ export class MacProxied {
       });
   }
 
-  status(): NetworkServiceProxyStatus[] | null {
+  static status(): NetworkServiceProxyStatus[] | null {
     const allNetworkService = this.listNetworkServices();
     if (allNetworkService.length === 0) return null;
     const result = new Array<NetworkServiceProxyStatus>();
@@ -102,7 +102,7 @@ export class MacProxied {
     return result;
   }
 
-  enable(config: MacProxyConfig): void {
+  static enable(config: MacProxyConfig): void {
     this.verifyConfig(config);
     config.networkServiceNames.map((networkServiceName) => {
       const proxyCommand = this.generateEnableProxyCommand(networkServiceName, config);
@@ -114,7 +114,7 @@ export class MacProxied {
     });
   }
 
-  disable(disableProxyRequest?: DisableProxyRequest): void {
+  static disable(disableProxyRequest?: DisableProxyRequest): void {
     if (disableProxyRequest !== undefined && disableProxyRequest.networkServiceNames.length === 0) return;
     if (disableProxyRequest === undefined) {
       // disable all
@@ -131,14 +131,14 @@ export class MacProxied {
     }
   }
 
-  private verifyConfig(config: MacProxyConfig): void {
+  private static verifyConfig(config: MacProxyConfig): void {
     if (!config.hostname) throw new Error("hostname is required");
     if (!config.port) throw new Error("port is required");
     if (!config.networkServiceNames) config.networkServiceNames = this.defaultNetworkServiceNames;
     if (!config.types) config.types = this.defaultTypes;
   }
 
-  private generateEnableProxyCommand(networkServiceName: string, config: MacProxyConfig): string {
+  private static generateEnableProxyCommand(networkServiceName: string, config: MacProxyConfig): string {
     const proxyCommand = config.types
       .map((type) => {
         if (config.authentification !== undefined) {
@@ -151,7 +151,7 @@ export class MacProxied {
     return proxyCommand;
   }
 
-  private generateDisableProxyCommand(networkServiceName: string, types: MacProxyType[]): string {
+  private static generateDisableProxyCommand(networkServiceName: string, types: MacProxyType[]): string {
     const proxyCommand = types
       .map((type) => {
         return `networksetup -set${type}proxystate ${networkServiceName} off`;
@@ -160,7 +160,7 @@ export class MacProxied {
     return proxyCommand;
   }
 
-  private generatePassDomainsCommand(networkServiceName: string, passDomains?: string[]): string {
+  private static generatePassDomainsCommand(networkServiceName: string, passDomains?: string[]): string {
     const passDomainsFixed = passDomains === undefined || passDomains.length === 0 ? "''" : passDomains.join(" ");
     return `networksetup -setproxybypassdomains ${networkServiceName} ${passDomainsFixed}`;
   }
